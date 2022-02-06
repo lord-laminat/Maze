@@ -2,15 +2,13 @@
 #include <random>
 #include <iostream>
 #include "Player.h"
-#include <string>
 class Room{
 private:
+	char type = ' '; // (#) - external, ( ) - empty, (A) - arsenal, (*) - estuary
 	int PosX = 0;
 	int PosY = 0;
 	bool visible = false;
-	bool external = false;
 	int walls[4]{0, 0, 0, 0};
-	const std::string sigil = " ";
 
 	void shuffle(int* arr)
 	{
@@ -28,14 +26,11 @@ private:
 public:
 	// constructors
 	Room() {}
-	Room(const Room& room) :
-		PosX(room.PosX), PosY(room.PosY), external(room.external), sigil(room.sigil) {}
-	
 	Room(int x, int y, int SIZE) {
 		PosX = x;
 		PosY = y;
 		if (PosY == 0 or PosY == SIZE - 1 or PosX == 0 or PosX == SIZE - 1) {
-			external = true;
+			type = '#';
 		}
 		else {
 			for (int i = 0; i < std::rand() % 2 + 1; i++) {
@@ -44,14 +39,23 @@ public:
 			shuffle(walls);
 		}
 	}
-
+	
+	// getters and setters
 	void SetVisible(bool vis) { visible = vis; }
 	void SetWall(int wallId, int New) { walls[wallId] = New; }
 	void SetX(int x) { PosX = x; }
 	void SetY(int y) { PosY = y; }
-	bool isExternal() { return external; }
-	bool isWall(int num) {
-		if (walls[num] != 0 or external) {
+	void SetType(char ch) { type = ch; }
+	bool isExternal() {
+		if (type == '#') {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	bool isWall(int n) {
+		if (walls[n] != 0 or type == '#') {
 			return true;
 		}
 		else {
@@ -63,19 +67,42 @@ public:
 
 	// room's representation
 	void repr(int PlayerPosX, int PlayerPosY) {
-		if (!external) {
-			if (PlayerPosX == PosX and PlayerPosY == PosY) {
-				std::cout << "\x1b[32m{\x1b[0m" + sigil + "\x1b[32m}\x1b[0m";
-			}
-			else if (visible) {
-				std::cout << '[' + sigil + ']';
-			}
-			else {
-				std::cout << "   ";
-			}
+		std::string s1;
+		std::string s2;
+		if (PlayerPosX == PosX and PlayerPosY == PosY) {
+			s1 = "\x1b[32;21m{\x1b[0m";
+			s2 = "\x1b[32;21m}\x1b[0m";
 		}
 		else {
+			s1 = "[";
+			s2 = "]";
+		}
+
+		if (false/* !visible */) {
+			std::cout << "   ";
+		}
+		else if (type == '#') {
 			std::cout << " # ";
+		}
+		else if (type == 'A') {
+			std::cout << s1 << "\x1b[21;33mA\x1b[0m" << s2;
+		}
+		else if (type == '*') {
+			std::cout << s1 << "\x1b[36m*\x1b[0m" << s2;
+		}
+		else if (type == ' ') {
+			std::cout << s1 << ' ' << s2;
+		}
+	}
+
+	// room's function
+	void run(Player *player) {
+		switch (type) {
+		case 'A':
+			(*player).SetBombs(3);
+			break;
+		default:
+			break;
 		}
 	}
 };

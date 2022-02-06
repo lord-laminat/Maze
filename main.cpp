@@ -28,11 +28,11 @@ void playerMove(char wayChar, int SIZE) {
 		break;
 	case 'r':
 		chosenRoomId = SIZE * player.GetPosY() + player.GetPosX() + 1;
-		way = 2;
+		way = 1;
 		break;
 	case 'd':
 		chosenRoomId = SIZE * (player.GetPosY() + 1) + player.GetPosX();
-		way = 1;
+		way = 2;
 		break;
 	case 'l':
 		chosenRoomId = SIZE * player.GetPosY() + player.GetPosX() - 1;
@@ -42,9 +42,9 @@ void playerMove(char wayChar, int SIZE) {
 		cout << "\nYou are just sitting..." << endl;
 		return void();
 	}
-	Room yourRoom(player.GetPosX(), player.GetPosY(), SIZE);
+	int yourRoomId = SIZE * player.GetPosY() + player.GetPosX();
 
-	if (yourRoom.isWall(way) or maze[chosenRoomId].isWall((way + 2) % 4)) {
+	if (maze[yourRoomId].isWall(way) or maze[chosenRoomId].isWall((way + 2) % 4)) {
 		char ans;
 		cout << "\nThere is wall in front of you. Do you want to blow it? [Y/N]\n > ";
 		cin >> ans;
@@ -52,10 +52,11 @@ void playerMove(char wayChar, int SIZE) {
 			player.SetBombs(player.GetBombs() - 1);
 			if (maze[chosenRoomId].isExternal()) {
 				cout << "\nThis wall is too powerful! You can't blow it." << endl;
+				maze[chosenRoomId].SetVisible(true);
 			}
 			else {
 				cout << "\nYou've successfully blown up this wall!" << endl;
-				yourRoom.SetWall(way, 0);
+				maze[yourRoomId].SetWall(way, 0);
 				maze[chosenRoomId].SetWall((way + 2) % 4, 0);
 				maze[chosenRoomId].SetVisible(true);
 				player.SetPosX(maze[chosenRoomId].GetX());
@@ -82,6 +83,7 @@ char down(char ch) {
 	}
 	return ch;
 }
+
 void statsShowWindow(Player player) {
 	string s = "----------";
 	cout << " #" << s << '#' << endl;
@@ -104,6 +106,13 @@ int main() {
 		}
 	}
 
+	// maze filling
+	// [0] - arsenal, [1] - estuary
+	maze[SIZE * (rand() % (SIZE - 2) + 1) + (rand() % (SIZE - 2) + 1)].SetType('A');
+	maze[SIZE * (rand() % (SIZE - 2) + 1) + (rand() % (SIZE - 2) + 1)].SetType('*');
+
+
+
 	// start room chosing
 	player.SetPosX(rand() % (SIZE - 2) + 1);
 	player.SetPosY(rand() % (SIZE - 2) + 1);
@@ -118,6 +127,7 @@ int main() {
 		cin >> way;
 		cout << endl;
 		playerMove(down(way), SIZE);
+		maze[SIZE * player.GetPosY() + player.GetPosX()].run(&player);
 	}
 	return 0;
 }
