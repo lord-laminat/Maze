@@ -76,6 +76,12 @@ void playerMove(char wayChar, int SIZE) {
 	}
 }
 
+char down(char ch) {
+	if (ch < 91 and ch > 64) {
+		ch += 32;
+	}
+	return ch;
+}
 void statsShowWindow(Player player) {
 	string s = "----------";
 	cout << " #" << s << '#' << endl;
@@ -111,7 +117,7 @@ int main() {
 		cout << "\nYou are standing in the empty room. [U/R/D/L]\n > ";
 		cin >> way;
 		cout << endl;
-		playerMove(way, SIZE);
+		playerMove(down(way), SIZE);
 	}
 	return 0;
 }
