@@ -5,10 +5,11 @@
 #include <iostream>
 using namespace std;
 Player player;
+int SIZE;
 vector <Room> maze;
 
 // showing maze in console
-void showMaze(int SIZE) {
+void showMaze() {
 	for (int y = 0; y < SIZE; y++) {
 		for (int x = 0; x < SIZE; x++) {
 			maze[SIZE * y + x].repr(player.GetPosX(), player.GetPosY());
@@ -19,7 +20,7 @@ void showMaze(int SIZE) {
 }
 
 // player's movement function 
-void playerMove(char wayChar, int SIZE) {
+void playerMove(char wayChar) {
 	int chosenRoomId, way;
 	switch (wayChar) {
 	case 'u':
@@ -77,6 +78,37 @@ void playerMove(char wayChar, int SIZE) {
 	}
 }
 
+void makeRiver(int cellId, int enter, int lenght, char sig){
+	vector <int> ways;
+	if (maze[cellId - SIZE].GetType() == ' ') {
+		ways.push_back(0);
+	}
+	if (maze[cellId + 1].GetType() == ' ') {
+		ways.push_back(1);
+	}
+	if (maze[cellId + SIZE].GetType() == ' ') {
+		ways.push_back(2);
+	}
+	if (maze[cellId - 1].GetType() == ' ') {
+		ways.push_back(3);
+	}
+
+	if (lenght <= 0 or ways.size() == 0) {
+		return void();
+	}
+	maze[cellId].SetType(sig);
+	maze[cellId].SetWay((enter + 2) % 4);
+	maze[cellId].SetWall(enter, 0);
+	maze[cellId].SetWall((enter + 2) % 4, 0);
+	int way = ways[rand() % ways.size()];
+	if (way % 2 == 0) {
+		makeRiver(cellId + (SIZE * (way - 1)), way, lenght - 1, '~');
+	}
+	else {
+		makeRiver(cellId + 2 - way, way, lenght - 1, '~');
+	}
+}
+
 char down(char ch) {
 	if (ch < 91 and ch > 64) {
 		ch += 32;
@@ -93,9 +125,9 @@ void statsShowWindow(Player player) {
 
 int main() {
 	// size of the maze defining
-	int SIZE;
 	cout << "Size of the maze: ";
 	cin >> SIZE;
+	if (SIZE < 5) { SIZE = 5; }
 	SIZE += 2;
 	cout << endl;
 
@@ -107,11 +139,10 @@ int main() {
 	}
 
 	// maze filling
-	// [0] - arsenal, [1] - estuary
+	// 'A' - arsenal, '*' - estuary
 	maze[SIZE * (rand() % (SIZE - 2) + 1) + (rand() % (SIZE - 2) + 1)].SetType('A');
-	maze[SIZE * (rand() % (SIZE - 2) + 1) + (rand() % (SIZE - 2) + 1)].SetType('*');
-
-
+	int estuaryId = SIZE * (rand() % (SIZE - 2) + 1) + (rand() % (SIZE - 2) + 1);
+	makeRiver(estuaryId, rand() % 4, SIZE - 1, '*');
 
 	// start room chosing
 	player.SetPosX(rand() % (SIZE - 2) + 1);
@@ -121,12 +152,12 @@ int main() {
 	// game loop starting
 	char way;
 	while (true) {
-		showMaze(SIZE);
+		showMaze();
 		statsShowWindow(player);
 		cout << "\nYou are standing in the empty room. [U/R/D/L]\n > ";
 		cin >> way;
 		cout << endl;
-		playerMove(down(way), SIZE);
+		playerMove(down(way));
 		maze[SIZE * player.GetPosY() + player.GetPosX()].run(&player);
 	}
 	return 0;

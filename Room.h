@@ -4,7 +4,8 @@
 #include "Player.h"
 class Room{
 private:
-	char type = ' '; // (#) - external, ( ) - empty, (A) - arsenal, (*) - estuary
+	char type = ' '; // (#) - external, ( ) - empty, (A) - arsenal, (*) - estuary, (~) - river
+	int way;
 	int PosX = 0;
 	int PosY = 0;
 	bool visible = false;
@@ -45,6 +46,7 @@ public:
 	void SetWall(int wallId, int New) { walls[wallId] = New; }
 	void SetX(int x) { PosX = x; }
 	void SetY(int y) { PosY = y; }
+	void SetWay(int n) { way = n; }
 	void SetType(char ch) { type = ch; }
 	bool isExternal() {
 		if (type == '#') {
@@ -64,6 +66,7 @@ public:
 	}
 	int GetX() { return PosX; }
 	int GetY() { return PosY; }
+	char GetType() { return type; }
 
 	// room's representation
 	void repr(int PlayerPosX, int PlayerPosY) {
@@ -93,6 +96,9 @@ public:
 		else if (type == ' ') {
 			std::cout << s1 << ' ' << s2;
 		}
+		else if (type == '~') {
+			std::cout << s1 << "\x1b[21;36m~\x1b[0m" << s2;
+		}
 	}
 
 	// room's function
@@ -100,6 +106,24 @@ public:
 		switch (type) {
 		case 'A':
 			(*player).SetBombs(3);
+			break;
+		case '~':
+			switch (way) {
+			case 0:
+				player->SetPosY(player->GetPosY() - 1);
+				break;
+			case 1:
+				player->SetPosX(player->GetPosX() + 1);
+				break;
+			case 2:
+				player->SetPosY(player->GetPosY() + 1);
+				break;
+			case 3:
+				player->SetPosX(player->GetPosX() - 1);
+				break;
+			default:
+				break;
+			}
 			break;
 		default:
 			break;
