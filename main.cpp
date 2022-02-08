@@ -10,13 +10,14 @@ vector <Room> maze;
 
 // showing maze in console
 void showMaze() {
+	cout << "\x1b[19m";
 	for (int y = 0; y < SIZE; y++) {
 		for (int x = 0; x < SIZE; x++) {
 			maze[SIZE * y + x].repr(player.GetPosX(), player.GetPosY());
 		}
 		cout << '\n';
 	}
-	cout << endl;
+	cout << "\x1b[0m" << endl;
 }
 
 // player's movement function 
@@ -96,17 +97,58 @@ void makeRiver(int cellId, int enter, int lenght, char sig){
 	if (lenght <= 0 or ways.size() == 0) {
 		return void();
 	}
+
+	int way = ways[rand() % ways.size()];
 	maze[cellId].SetType(sig);
 	maze[cellId].SetWay((enter + 2) % 4);
-	maze[cellId].SetWall(enter, 0);
-	maze[cellId].SetWall((enter + 2) % 4, 0);
-	int way = ways[rand() % ways.size()];
+	maze[cellId].SetWall(way, 0);
 	if (way % 2 == 0) {
 		makeRiver(cellId + (SIZE * (way - 1)), way, lenght - 1, '~');
 	}
 	else {
 		makeRiver(cellId + 2 - way, way, lenght - 1, '~');
 	}
+}
+
+// room's function
+void run(Room room) {
+	switch (room.GetType()) {
+	case 'A':
+		player.SetBombs(3);
+		break;
+	case '~':
+		switch (room.GetWay()) {
+		case 0:
+			player.SetPosY(player.GetPosY() - 1);
+			break;
+		case 1:
+			player.SetPosX(player.GetPosX() + 1);
+			break;
+		case 2:
+			player.SetPosY(player.GetPosY() + 1);
+			break;
+		case 3:
+			player.SetPosX(player.GetPosX() - 1);
+			break;
+		default:
+			break;
+		}
+		break;
+	case '@':
+		player.SetPosX(maze[room.GetWay()].GetX());
+		player.SetPosY(maze[room.GetWay()].GetY());
+	default:
+		break;
+	}
+}
+
+int setRoom(char type) {
+	int id = SIZE * (rand() % (SIZE - 2) + 1) + (rand() % (SIZE - 2) + 1);
+	while (maze[id].GetType() != ' ') {
+		id = SIZE * (rand() % (SIZE - 2) + 1) + (rand() % (SIZE - 2) + 1);
+	}
+	maze[id].SetType(type);
+	return id;
 }
 
 char down(char ch) {
@@ -140,9 +182,15 @@ int main() {
 
 	// maze filling
 	// 'A' - arsenal, '*' - estuary
-	maze[SIZE * (rand() % (SIZE - 2) + 1) + (rand() % (SIZE - 2) + 1)].SetType('A');
-	int estuaryId = SIZE * (rand() % (SIZE - 2) + 1) + (rand() % (SIZE - 2) + 1);
-	makeRiver(estuaryId, rand() % 4, SIZE - 1, '*');
+	setRoom('A');
+	makeRiver(setRoom('*'), rand() % 4, SIZE - 1, '*');
+	int holes[3 /* надо сделать их количество динамичным */];
+	for (int i = 0; i < 3; i++) {
+		holes[i] = setRoom('@');
+	}
+	for (int i = 0; i < 3 /* надо сделать их количество динамичным */; i++) {
+		maze[holes[i]].SetWay(holes[rand() % 3 /* надо сделать их количество динамичным */]);
+	}
 
 	// start room chosing
 	player.SetPosX(rand() % (SIZE - 2) + 1);
@@ -158,7 +206,7 @@ int main() {
 		cin >> way;
 		cout << endl;
 		playerMove(down(way));
-		maze[SIZE * player.GetPosY() + player.GetPosX()].run(&player);
+		run(maze[SIZE * player.GetPosY() + player.GetPosX()]);
 	}
 	return 0;
 }

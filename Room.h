@@ -1,5 +1,6 @@
 #pragma once
 #include <random>
+#include <vector>
 #include <iostream>
 #include "Player.h"
 class Room{
@@ -34,7 +35,7 @@ public:
 			type = '#';
 		}
 		else {
-			for (int i = 0; i < std::rand() % 2 + 1; i++) {
+			for (int i = 0; i < std::rand() % 3; i++) {
 				walls[i] = 1;
 			}
 			shuffle(walls);
@@ -66,6 +67,7 @@ public:
 	}
 	int GetX() { return PosX; }
 	int GetY() { return PosY; }
+	int GetWay() { return way; }
 	char GetType() { return type; }
 
 	// room's representation
@@ -99,34 +101,8 @@ public:
 		else if (type == '~') {
 			std::cout << s1 << "\x1b[21;36m~\x1b[0m" << s2;
 		}
-	}
-
-	// room's function
-	void run(Player *player) {
-		switch (type) {
-		case 'A':
-			(*player).SetBombs(3);
-			break;
-		case '~':
-			switch (way) {
-			case 0:
-				player->SetPosY(player->GetPosY() - 1);
-				break;
-			case 1:
-				player->SetPosX(player->GetPosX() + 1);
-				break;
-			case 2:
-				player->SetPosY(player->GetPosY() + 1);
-				break;
-			case 3:
-				player->SetPosX(player->GetPosX() - 1);
-				break;
-			default:
-				break;
-			}
-			break;
-		default:
-			break;
+		else if (type == '@') {
+			std::cout << s1 << "\x1b[21;37m@\x1b[0m" << s2;
 		}
 	}
 };
