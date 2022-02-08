@@ -86,38 +86,40 @@ public:
 		if (!visible) {
 			std::cout << "   ";
 		}
-		switch (type) {
-		case '#':
-			if (way == -1) {
-				std::cout << " ! ";
+		else {
+			switch (type) {
+			case '#':
+				if (way == -1) {
+					std::cout << " ! ";
+				}
+				else {
+					std::cout << " # ";
+				}
+				break;
+			case 'A':
+				std::cout << s1 << "\x1b[33mA\x1b[0m" << s2;
+				break;
+			case '*':
+				std::cout << s1 << "\x1b[36m*\x1b[0m" << s2;
+				break;
+			case '~':
+				std::cout << s1 << "\x1b[36m~\x1b[0m" << s2;
+				break;
+			case '@':
+				std::cout << s1 << "\x1b[37m@\x1b[0m" << s2;
+				break;
+			case '!':
+				std::cout << " \x1b[32m!\x1b[0m ";
+				break;
+			case 'K':
+				std::cout << s1 << '$' << s2;
+				break;
+			case 'F':
+				std::cout << "   ";
+				break;
+			default:
+				std::cout << s1 << ' ' << s2;
 			}
-			else {
-				std::cout << " # ";
-			}
-			break;
-		case 'A':
-			std::cout << s1 << "\x1b[33mA\x1b[0m" << s2;
-			break;
-		case '*':
-			std::cout << s1 << "\x1b[36m*\x1b[0m" << s2;
-			break;
-		case '~':
-			std::cout << s1 << "\x1b[36m~\x1b[0m" << s2;
-			break;
-		case '@':
-			std::cout << s1 << "\x1b[37m@\x1b[0m" << s2;
-			break;
-		case '!':
-			std::cout << " \x1b[32m!\x1b[0m ";
-			break;
-		case 'K':
-			std::cout << s1 << '$' << s2;
-			break;
-		case 'F':
-			std::cout << "   ";
-			break;
-		default:
-			std::cout << s1 << ' ' << s2;
 		}
 	}
 };
