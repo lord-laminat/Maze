@@ -5,7 +5,7 @@
 #include "Player.h"
 class Room{
 private:
-	char type = ' '; // (#) - external, ( ) - empty, (A) - arsenal, (*) - estuary, (~) - river
+	char type = ' '; // (#) - external, ( ) - empty, (A) - arsenal, (*) - estuary, (~) - river, (#) - wormholeá
 	int way;
 	int PosX = 0;
 	int PosY = 0;
@@ -75,34 +75,49 @@ public:
 		std::string s1;
 		std::string s2;
 		if (PlayerPosX == PosX and PlayerPosY == PosY) {
-			s1 = "\x1b[32;21m{\x1b[0m";
-			s2 = "\x1b[32;21m}\x1b[0m";
+			s1 = "\x1b[32m{\x1b[0m";
+			s2 = "\x1b[32m}\x1b[0m";
 		}
 		else {
 			s1 = "[";
 			s2 = "]";
 		}
 
-		if (false/* !visible */) {
+		if (!visible) {
 			std::cout << "   ";
 		}
-		else if (type == '#') {
-			std::cout << " # ";
-		}
-		else if (type == 'A') {
-			std::cout << s1 << "\x1b[21;33mA\x1b[0m" << s2;
-		}
-		else if (type == '*') {
+		switch (type) {
+		case '#':
+			if (way == -1) {
+				std::cout << " ! ";
+			}
+			else {
+				std::cout << " # ";
+			}
+			break;
+		case 'A':
+			std::cout << s1 << "\x1b[33mA\x1b[0m" << s2;
+			break;
+		case '*':
 			std::cout << s1 << "\x1b[36m*\x1b[0m" << s2;
-		}
-		else if (type == ' ') {
+			break;
+		case '~':
+			std::cout << s1 << "\x1b[36m~\x1b[0m" << s2;
+			break;
+		case '@':
+			std::cout << s1 << "\x1b[37m@\x1b[0m" << s2;
+			break;
+		case '!':
+			std::cout << " \x1b[32m!\x1b[0m ";
+			break;
+		case 'K':
+			std::cout << s1 << '$' << s2;
+			break;
+		case 'F':
+			std::cout << "   ";
+			break;
+		default:
 			std::cout << s1 << ' ' << s2;
-		}
-		else if (type == '~') {
-			std::cout << s1 << "\x1b[21;36m~\x1b[0m" << s2;
-		}
-		else if (type == '@') {
-			std::cout << s1 << "\x1b[21;37m@\x1b[0m" << s2;
 		}
 	}
 };

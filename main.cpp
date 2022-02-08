@@ -6,6 +6,7 @@
 using namespace std;
 Player player;
 int SIZE;
+bool ending = false;
 vector <Room> maze;
 
 // showing maze in console
@@ -70,6 +71,16 @@ void playerMove(char wayChar) {
 		}
 		else /*  if (ans != 'y')  */ {
 			cout << "\nYou are just sitting..." << endl;
+		}
+	}
+	else if (maze[chosenRoomId].GetType() == '!') {
+		if (!player.GetKey()) {
+			cout << "You found a wooden door with a keyhole on it. It's too strong to blow up." << endl;
+			maze[chosenRoomId].SetVisible(true);
+		}
+		else {
+			cout << "The heavy door creaked open, and you saw the way out to freedom." << endl;
+			maze[chosenRoomId].SetType('F');
 		}
 	}
 	else {
@@ -137,14 +148,22 @@ void run(Room room) {
 	case '@':
 		player.SetPosX(maze[room.GetWay()].GetX());
 		player.SetPosY(maze[room.GetWay()].GetY());
+		break;
+	case 'K':
+		player.GiveKey();
+		maze[SIZE * player.GetPosY() + player.GetPosX()].SetType(' ');
+		break;
+	case 'F':
+		ending = true;
+		break;
 	default:
 		break;
 	}
 }
 
-int setRoom(char type) {
+int setRoom(char type, char proto) {
 	int id = SIZE * (rand() % (SIZE - 2) + 1) + (rand() % (SIZE - 2) + 1);
-	while (maze[id].GetType() != ' ') {
+	while (maze[id].GetType() != proto) {
 		id = SIZE * (rand() % (SIZE - 2) + 1) + (rand() % (SIZE - 2) + 1);
 	}
 	maze[id].SetType(type);
@@ -182,15 +201,21 @@ int main() {
 
 	// maze filling
 	// 'A' - arsenal, '*' - estuary
-	setRoom('A');
-	makeRiver(setRoom('*'), rand() % 4, SIZE - 1, '*');
+	setRoom('A', ' ');
+	makeRiver(setRoom('*', ' '), rand() % 4, SIZE - 1, '*');
 	int holes[3 /* надо сделать их количество динамичным */];
 	for (int i = 0; i < 3; i++) {
-		holes[i] = setRoom('@');
+		holes[i] = setRoom('@', ' ');
 	}
 	for (int i = 0; i < 3 /* надо сделать их количество динамичным */; i++) {
 		maze[holes[i]].SetWay(holes[rand() % 3 /* надо сделать их количество динамичным */]);
 	}
+	setRoom('K', ' ');
+	int id = rand() % (SIZE * SIZE);
+	while (id != '#') {
+		id = rand() % (SIZE * SIZE);
+	}
+	maze[id].SetType('!');
 
 	// start room chosing
 	player.SetPosX(rand() % (SIZE - 2) + 1);
@@ -199,14 +224,15 @@ int main() {
 
 	// game loop starting
 	char way;
-	while (true) {
+	while (!ending) {
 		showMaze();
 		statsShowWindow(player);
-		cout << "\nYou are standing in the empty room. [U/R/D/L]\n > ";
+		cout << "\nYou are standing in the empty room. [U/R/D/L]\n > " << endl;
 		cin >> way;
 		cout << endl;
 		playerMove(down(way));
 		run(maze[SIZE * player.GetPosY() + player.GetPosX()]);
 	}
+	cout << "\n\t\x1b[19;52;51mYou were lucky to escape from the cursed maze, you won!\x1b[0m\n" << endl;
 	return 0;
 }
