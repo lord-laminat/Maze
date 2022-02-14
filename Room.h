@@ -109,7 +109,7 @@ public:
 				std::cout << s1 << "\x1b[37m@\x1b[0m" << s2;
 				break;
 			case '!':
-				std::cout << " \x1b[32m!\x1b[0m ";
+				std::cout << "\x1b[32m!\x1b[0m";
 				break;
 			case 'K':
 				std::cout << s1 << '$' << s2;

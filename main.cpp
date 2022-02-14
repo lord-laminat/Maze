@@ -232,6 +232,7 @@ int main() {
 		cout << endl;
 		playerMove(down(way));
 		run(maze[SIZE * player.GetPosY() + player.GetPosX()]);
+		maze[SIZE * player.GetPosY() + player.GetPosX()].SetVisible(true);
 	}
 	cout << "\n\t\x1b[19;52;51mYou were lucky to escape from the cursed maze, you won!\x1b[0m\n" << endl;
 	return 0;
